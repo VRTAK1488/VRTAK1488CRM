@@ -1,62 +1,188 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>База лидов</title>
+  <title>Leads — Coldi CRM</title>
   <link rel="stylesheet" href="css/style.css" />
-  <link rel="icon" href="img/logo.svg" type="image/svg+xml" />
 </head>
 <body>
-  <div class="sidebar">
-    <div class="logo"><img src="img/logo.svg" alt="Logo" /> Coldi CRM</div>
-    <a href="home.html">Главная</a>
-    <a class="active" href="leads.html">Лиды</a>
-    <a href="notifications.html">Напоминания</a>
-    <a href="admin.html" id="adminMenu" style="display: none;">Настройки</a>
-    <a href="#" onclick="logout()" class="exit-link">Выход</a>
-  </div>
-
-  <div class="main">
-    <div class="topbar">
-      <div id="greeting">Здравствуйте!</div>
-      <div id="notificationIcon" class="notification-icon">
-        <img src="img/bell.svg" alt="🔔" />
-        <div id="notificationBadge" class="notification-badge" style="display: none;">0</div>
+  <div class="dashboard">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h2>Coldi CRM</h2>
+        <p id="userRole"></p>
       </div>
-    </div>
+      <ul class="nav-links">
+        <li><a href="home.html">Dashboard</a></li>
+        <li><a href="leads.html" class="active">Leads</a></li>
+        <li id="adminLink" style="display:none;"><a href="admin.html">Admin Panel</a></li>
+      </ul>
+    </aside>
 
-    <div class="content">
-      <h2>База лидов</h2>
-
-      <div class="filter-bar">
-        <input type="text" id="search" placeholder="Поиск по имени, email или телефону" />
-        <select id="statusFilter">
-          <option value="">Все статусы</option>
-          <option value="new">Новый</option>
-          <option value="in-progress">В работе</option>
-          <option value="closed">Закрыт</option>
-        </select>
-        <select id="affiliateFilter">
-          <option value="">Все аффилиаты</option>
-          <option value="partnerA">Партнёр A</option>
-          <option value="partnerB">Партнёр B</option>
-        </select>
-        <select id="limitSelect">
-          <option value="10">Показать 10</option>
-          <option value="20">Показать 20</option>
-          <option value="30" selected>Показать 30</option>
-          <option value="50">Показать 50</option>
-          <option value="100">Показать 100</option>
-        </select>
+    <main class="main-content">
+      <div class="header">
+        <h1>Leads Management</h1>
+        <button class="logout-btn" onclick="logout()">Logout</button>
       </div>
 
-      <div id="leadList" class="lead-list"></div>
-    </div>
+      <!-- Add Lead -->
+      <div class="form-group">
+        <label>Add New Lead</label>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
+          <input type="text" id="leadName" placeholder="Full Name" required>
+          <input type="email" id="leadEmail" placeholder="Email">
+          <input type="tel" id="leadPhone" placeholder="Phone">
+          <select id="leadManager" style="display:none;"></select>
+          <button onclick="addLead()" style="grid-column: span 2; background:var(--primary); color:white; border:none; padding:10px; border-radius:6px;">Add Lead</button>
+        </div>
+      </div>
+
+      <!-- Import -->
+      <div class="form-group">
+        <label>Import Clients (CSV or JSON)</label>
+        <textarea id="importData" placeholder='CSV: Name,Email,Phone&#10;or JSON: [{"name":"...","email":"...","phone":"..."}]' rows="4"></textarea><br>
+        <button onclick="importClients()">Import</button>
+        <span id="importStatus" style="margin-left: 10px; color: var(--success);"></span>
+      </div>
+
+      <!-- Filters -->
+      <div style="display: flex; gap: 12px; flex-wrap: wrap; margin: 16px 0;">
+        <select id="filterStatus" onchange="loadLeads()">
+          <option value="">All Statuses</option>
+          <option value="new">New</option>
+          <option value="call-back">Call Back</option>
+          <option value="no-answer">No Answer</option>
+          <option value="contacted">Contacted</option>
+          <option value="closed">Closed</option>
+        </select>
+        <select id="filterManager" onchange="loadLeads()" style="display:none;"></select>
+      </div>
+
+      <!-- Table -->
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Manager</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="leadsTable"></tbody>
+        </table>
+      </div>
+    </main>
   </div>
 
-  <div id="notificationPopup" class="notification-popup" style="display: none;"></div>
-  <script src="js/leads.js"></script>
-  <script src="js/reminder.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    let currentUser, userRole;
+
+    document.addEventListener('DOMContentLoaded', function () {
+      initStorage();
+      currentUser = localStorage.getItem('user');
+      userRole = localStorage.getItem('role');
+
+      if (userRole === 'admin') {
+        document.getElementById('leadManager').style.display = 'block';
+        document.getElementById('filterManager').style.display = 'block';
+        loadManagers();
+      }
+
+      loadLeads();
+    });
+
+    function loadManagers() {
+      const managers = getUsers().filter(u => u.role === 'manager').map(u => u.username);
+      const sel1 = document.getElementById('leadManager');
+      const sel2 = document.getElementById('filterManager');
+      sel1.innerHTML = '<option value="">Assign Manager</option>';
+      sel2.innerHTML = '<option value="">All Managers</option>';
+      managers.forEach(m => {
+        sel1.innerHTML += `<option value="${m}">${m}</option>`;
+        sel2.innerHTML += `<option value="${m}">${m}</option>`;
+      });
+    }
+
+    function addLead() {
+      const name = document.getElementById('leadName').value.trim();
+      if (!name) return alert('Name is required');
+      const lead = {
+        name,
+        email: document.getElementById('leadEmail').value.trim(),
+        phone: document.getElementById('leadPhone').value.trim(),
+        manager: userRole === 'admin' ? document.getElementById('leadManager').value || currentUser : currentUser,
+        status: 'new',
+        reminder: ''
+      };
+      addClient(lead);
+      document.getElementById('leadName').value = '';
+      document.getElementById('leadEmail').value = '';
+      document.getElementById('leadPhone').value = '';
+      if (userRole === 'admin') document.getElementById('leadManager').value = '';
+      loadLeads();
+    }
+
+    function importClients() {
+      const txt = document.getElementById('importData').value.trim();
+      let clients = [];
+      try {
+        if (txt.startsWith('[')) {
+          clients = JSON.parse(txt);
+        } else {
+          const lines = txt.split('\n').filter(l => l.trim());
+          const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+          for (let i = 1; i < lines.length; i++) {
+            const vals = lines[i].split(',');
+            const obj = {};
+            headers.forEach((h, j) => {
+              if (h === 'name') obj.name = vals[j]?.trim() || '';
+              else if (h === 'email') obj.email = vals[j]?.trim() || '';
+              else if (h === 'phone') obj.phone = vals[j]?.trim() || '';
+            });
+            if (obj.name) clients.push(obj);
+          }
+        }
+        clients.forEach(c => {
+          c.manager = currentUser;
+          c.status = 'new';
+          c.reminder = '';
+          addClient(c);
+        });
+        document.getElementById('importStatus').textContent = `${clients.length} clients imported`;
+        document.getElementById('importData').value = '';
+        loadLeads();
+      } catch (e) {
+        alert('Invalid format. Use CSV (name,email,phone) or JSON array.');
+      }
+    }
+
+    function loadLeads() {
+      const all = getClients();
+      const status = document.getElementById('filterStatus').value;
+      const manager = document.getElementById('filterManager').value;
+      const filtered = all.filter(c => {
+        return (!status || c.status === status) &&
+               (!manager || c.manager === manager);
+      });
+
+      const tbody = document.getElementById('leadsTable');
+      tbody.innerHTML = filtered.map(c => `
+        <tr>
+          <td><a href="client-card.html?id=${c.id}" style="color:var(--primary);">${c.name}</a></td>
+          <td>${c.email || '—'}</td>
+          <td>${c.phone || '—'}</td>
+          <td>${c.manager || '—'}</td>
+          <td><span class="status ${c.status || 'new'}">${c.status || 'New'}</span></td>
+          <td><a href="client-card.html?id=${c.id}">Open</a></td>
+        </tr>
+      `).join('');
+    }
+  </script>
 </body>
 </html>

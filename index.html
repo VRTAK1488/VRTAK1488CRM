@@ -39,14 +39,19 @@
 
     document.getElementById("loginForm").addEventListener("submit", function (e) {
       e.preventDefault();
-      const username = document.getElementById("username").value;
-      const role = username === "admin" ? "admin" : "manager";
-      localStorage.setItem("role", role);
-      localStorage.setItem("user", username);
-      window.location.href = "home.html";
+      const username = document.getElementById("username").value.trim();
+      const users = JSON.parse(localStorage.getItem('users') || '[]');
+      const user = users.find(u => u.username === username);
+      if (user) {
+        localStorage.setItem("role", user.role);
+        localStorage.setItem("user", username);
+        window.location.href = "home.html";
+      } else {
+        alert("User not found. Contact admin.");
+      }
     });
 
-    // Анимированные частицы (фон)
+    // Particles
     const canvas = document.getElementById('backgroundCanvas');
     const ctx = canvas.getContext('2d');
     let particles = [];
@@ -81,7 +86,6 @@
         ctx.fill();
         p.x += p.dx;
         p.y += p.dy;
-
         if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
         if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
       });

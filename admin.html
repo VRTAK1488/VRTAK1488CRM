@@ -1,85 +1,104 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Админ-панель | Coldi CRM</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin — Coldi CRM</title>
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-  <div class="sidebar">
-    <div class="logo">
-      <img src="img/logo.svg" alt="Logo" />
-      <span>Coldi CRM</span>
-    </div>
-    <div class="menu">
-      <a href="home.html">Главная</a>
-      <a href="leads.html">Лиды</a>
-      <a href="notifications.html">Напоминания</a>
-      <a href="admin.html" class="active">Настройки</a>
-      <a href="#" onclick="logout()" class="logout-link">Выход</a>
-    </div>
+  <div class="dashboard">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h2>Coldi CRM</h2>
+        <p id="userRole"></p>
+      </div>
+      <ul class="nav-links">
+        <li><a href="home.html">Dashboard</a></li>
+        <li><a href="leads.html">Leads</a></li>
+        <li><a href="admin.html" class="active">Admin Panel</a></li>
+      </ul>
+    </aside>
+
+    <main class="main-content">
+      <div class="header">
+        <h1>User Management</h1>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+      </div>
+
+      <div class="form-group">
+        <label>Create New Account</label>
+        <div style="display: grid; grid-template-columns: 1fr 120px; gap: 10px;">
+          <input type="text" id="newUsername" placeholder="Username" required>
+          <select id="newUserRole">
+            <option value="manager">Manager</option>
+            <option value="admin">Admin</option>
+          </select>
+          <button onclick="createUser()" style="grid-column: span 2; background:var(--primary); color:white; border:none; padding:10px; border-radius:6px;">Create User</button>
+        </div>
+        <p id="createStatus" style="margin-top: 8px;"></p>
+      </div>
+
+      <h3>Existing Users</h3>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Username</th>
+              <th>Role</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="usersTable"></tbody>
+        </table>
+      </div>
+    </main>
   </div>
 
-  <div class="topbar">
-    <div class="greeting" id="greetingText">Здравствуйте, администратор!</div>
-  </div>
-
-  <div class="content">
-    <h2>Админ-панель</h2>
-    <p>Вы можете создать тестовые данные или управлять аккаунтами менеджеров.</p>
-
-    <button id="generateClients" class="btn-generate">Создать тестовых клиентов</button>
-  </div>
-
-  <!-- Кнопка и JS -->
+  <script src="js/data.js"></script>
+  <script src="js/main.js"></script>
   <script>
-    function logout() {
-      localStorage.removeItem("role");
-      localStorage.removeItem("user");
-      window.location.href = "index.html";
-    }
-<button id="generateClients" class="btn-generate">Создать тестовых клиентов</button>
-
-    document.getElementById("generateClients").addEventListener("click", () => {
-      const sampleLeads = Array.from({ length: 20 }, (_, i) => ({
-        id: i + 1,
-        firstName: `Имя${i + 1}`,
-        lastName: `Фамилия${i + 1}`,
-        phone: `+38063${Math.floor(1000000 + Math.random() * 8999999)}`,
-        email: `user${i + 1}@example.com`,
-        status: ["new", "in-progress", "closed"][i % 3],
-        affiliate: ["partnerA", "partnerB"][i % 2],
-        manager: i % 2 === 0 ? "manager1" : "manager2",
-        comment: `Комментарий к клиенту #${i + 1}`,
-        reminder: "",
-        country: "Украина"
-      }));
-
-      localStorage.setItem("crmClients", JSON.stringify(sampleLeads));
-      alert("Тестовые клиенты успешно созданы!");
+    document.addEventListener('DOMContentLoaded', function () {
+      if (localStorage.getItem('role') !== 'admin') {
+        window.location.href = 'home.html';
+      }
+      loadUsers();
     });
+
+    function createUser() {
+      const username = document.getElementById('newUsername').value.trim();
+      const role = document.getElementById('newUserRole').value;
+      const status = document.getElementById('createStatus');
+      if (!username) return;
+      if (addUser(username, role)) {
+        status.textContent = '✅ User created';
+        status.style.color = 'var(--success)';
+        document.getElementById('newUsername').value = '';
+        loadUsers();
+      } else {
+        status.textContent = '❌ Username already exists';
+        status.style.color = 'var(--danger)';
+      }
+    }
+
+    function loadUsers() {
+      const users = getUsers().filter(u => u.username !== 'admin');
+      const tbody = document.getElementById('usersTable');
+      tbody.innerHTML = users.map(u => `
+        <tr>
+          <td>${u.username}</td>
+          <td>${u.role.charAt(0).toUpperCase() + u.role.slice(1)}</td>
+          <td><button onclick="deleteUser('${u.username}')" style="background:var(--danger);color:white;border:none;padding:4px 8px;border-radius:4px;">Delete</button></td>
+        </tr>
+      `).join('');
+    }
+
+    function deleteUser(username) {
+      if (confirm(`Delete user "${username}"?`)) {
+        removeUser(username);
+        loadUsers();
+      }
+    }
   </script>
-<script>
-document.getElementById("generateClients").addEventListener("click", () => {
-  const sampleLeads = Array.from({ length: 20 }, (_, i) => ({
-    id: i + 1,
-    firstName: `Имя${i + 1}`,
-    lastName: `Фамилия${i + 1}`,
-    phone: `+38063${Math.floor(1000000 + Math.random() * 8999999)}`,
-    email: `user${i + 1}@example.com`,
-    status: ["new", "in-progress", "closed"][i % 3],
-    affiliate: ["partnerA", "partnerB"][i % 2],
-    manager: i % 2 === 0 ? "manager1" : "manager2",
-    comment: `Комментарий к клиенту #${i + 1}`,
-    reminder: "",
-    country: "Украина"
-  }));
-
-  localStorage.setItem("crmClients", JSON.stringify(sampleLeads));
-  alert("Тестовые клиенты успешно созданы!");
-});
-</script>
-
 </body>
 </html>

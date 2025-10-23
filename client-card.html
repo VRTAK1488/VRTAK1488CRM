@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Client — Coldi CRM</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="dashboard">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h2><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg> Coldi CRM</h2>
+        <p id="userRole"></p>
+      </div>
+      <ul class="nav-links">
+        <li><a href="home.html"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg> Dashboard</a></li>
+        <li><a href="leads.html"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3zm0 2c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm15 0c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm-9 0c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3z"/></svg> Leads</a></li>
+        <li id="adminLink" style="display:none;"><a href="admin.html"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c1.52 0 5.11.63 7 2.14V20H5v-3.86c1.89-1.51 5.48-2.14 7-2.14z"/></svg> Admin Panel</a></li>
+      </ul>
+    </aside>
+
+    <main class="main-content">
+      <div class="header">
+        <div class="client-header">
+          <h1 id="clientName">—</h1>
+          <button class="copy-btn" onclick="copyToClipboard('clientName')">Copy Name</button>
+        </div>
+        <button class="logout-btn" onclick="window.location.href='leads.html'">Back to Leads</button>
+      </div>
+
+      <div class="client-card">
+        <!-- Основные данные -->
+        <div class="section">
+          <div class="section-title">
+            <span>Основное</span>
+            <span id="statusBadge" class="status new">New</span>
+          </div>
+          <div class="form-group">
+            <label>Полное имя</label>
+            <input type="text" id="clientFullName" onchange="saveField('name', this.value)">
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="clientEmail" onchange="saveField('email', this.value)">
+            <button class="copy-btn" onclick="copyToClipboard('clientEmail')" style="margin-left: 8px;">Copy</button>
+          </div>
+          <div class="form-group">
+            <label>Телефон</label>
+            <input type="tel" id="clientPhone" onchange="saveField('phone', this.value)">
+            <button class="copy-btn" onclick="copyToClipboard('clientPhone')" style="margin-left: 8px;">Copy</button>
+          </div>
+          <div class="form-group">
+            <label>Страна</label>
+            <select id="clientCountry" onchange="saveField('country', this.value)">
+              <option value="">Выберите страну</option>
+              <option value="Czech Republic">Czech Republic</option>
+              <option value="Germany">Germany</option>
+              <option value="USA">USA</option>
+              <option value="Russia">Russia</option>
+              <option value="UK">UK</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Описание</label>
+            <textarea id="clientDescription" onchange="saveField('description', this.value)"></textarea>
+          </div>
+        </div>
+
+        <!-- Дополнительные данные -->
+        <div class="section">
+          <div class="section-title">
+            <span>Дополнительно</span>
+          </div>
+          <div class="form-group">
+            <label>Менеджер</label>
+            <select id="clientManager" onchange="saveField('manager', this.value)">
+              <option value="">Выберите менеджера</option>
+              <!-- заполнится JS -->
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Статус звонка</label>
+            <select id="clientStatus" onchange="saveField('status', this.value)">
+              <option value="new">New</option>
+              <option value="call-back">Call Back</option>
+              <option value="no-answer">No Answer</option>
+              <option value="contacted">Contacted</option>
+              <option value="closed">Closed</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Напоминание</label>
+            <input type="datetime-local" id="clientReminder" onchange="saveField('reminder', this.value)">
+          </div>
+          <div class="form-group">
+            <label>Дата рождения</label>
+            <input type="text" id="clientBirthDate" placeholder="MM/DD/YYYY" onchange="saveField('birthDate', this.value)">
+          </div>
+          <div class="form-group">
+            <label>Источник</label>
+            <input type="text" id="clientSource" onchange="saveField('source', this.value)" placeholder="Charge_AdvocentraQuiz_CZ">
+          </div>
+        </div>
+
+        <!-- Комментарии -->
+        <div class="section">
+          <div class="section-title">
+            <span>Комментарии</span>
+          </div>
+          <div class="form-group">
+            <textarea id="commentText" placeholder="Добавьте комментарий..."></textarea>
+          </div>
+          <button class="btn btn-primary" onclick="addClientComment()">Добавить комментарий</button>
+          <div class="comment-list" id="commentsList"></div>
+        </div>
+
+        <!-- Кнопка сохранения -->
+        <div style="text-align: right; margin-top: 24px;">
+          <button class="btn btn-primary" onclick="saveClient()">Сохранить изменения</button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    let clientId, currentUser;
+
+    document.addEventListener('DOMContentLoaded', function () {
+      initStorage();
+      currentUser = localStorage.getItem('user');
+      clientId = new URLSearchParams(window.location.search).get('id');
+      if (!clientId) return window.location.href = 'leads.html';
+
+      const client = getClientById(clientId);
+      if (!client) return window.location.href = 'leads.html';
+
+      // Заполнение полей
+      document.getElementById('clientName').textContent = client.name || '—';
+      document.getElementById('clientFullName').value = client.name || '';
+      document.getElementById('clientEmail').value = client.email || '';
+      document.getElementById('clientPhone').value = client.phone || '';
+      document.getElementById('clientCountry').value = client.country || '';
+      document.getElementById('clientDescription').value = client.description || '';
+      document.getElementById('clientManager').value = client.manager || '';
+      document.getElementById('clientStatus').value = client.status || 'new';
+      document.getElementById('clientReminder').value = client.reminder || '';
+      document.getElementById('clientBirthDate').value = client.birthDate || '';
+      document.getElementById('clientSource').value = client.source || '';
+
+      // Установка статуса в бэдже
+      updateStatusBadge(client.status);
+
+      // Загрузка менеджеров
+      loadManagers();
+
+      // Загрузка комментариев
+      loadComments();
+    });
+
+    function updateStatusBadge(status) {
+      const badge = document.getElementById('statusBadge');
+      badge.className = `status ${status}`;
+      badge.textContent = status === 'new' ? 'New' :
+                          status === 'call-back' ? 'Call Back' :
+                          status === 'no-answer' ? 'No Answer' :
+                          status === 'contacted' ? 'Contacted' :
+                          'Closed';
+    }
+
+    function saveField(field, value) {
+      updateClient(clientId, { [field]: value });
+      if (field === 'status') {
+        updateStatusBadge(value);
+      }
+    }
+
+    function saveClient() {
+      // Сохраняет всё сразу (можно добавить валидацию)
+      const updated = {
+        name: document.getElementById('clientFullName').value.trim(),
+        email: document.getElementById('clientEmail').value.trim(),
+        phone: document.getElementById('clientPhone').value.trim(),
+        country: document.getElementById('clientCountry').value,
+        description: document.getElementById('clientDescription').value,
+        manager: document.getElementById('clientManager').value,
+        status: document.getElementById('clientStatus').value,
+        reminder: document.getElementById('clientReminder').value,
+        birthDate: document.getElementById('clientBirthDate').value,
+        source: document.getElementById('clientSource').value
+      };
+      updateClient(clientId, updated);
+      alert('Изменения сохранены!');
+    }
+
+    function addClientComment() {
+      const text = document.getElementById('commentText').value.trim();
+      if (text) {
+        addComment(clientId, text, currentUser);
+        document.getElementById('commentText').value = '';
+        loadComments();
+      }
+    }
+
+    function loadComments() {
+      const comments = getComments(clientId);
+      const container = document.getElementById('commentsList');
+      container.innerHTML = comments.map(c => `
+        <div class="comment-item">
+          <div class="comment-author">${c.author}</div>
+          <div class="comment-date">${c.date}</div>
+          <div class="comment-text">${c.text}</div>
+        </div>
+      `).join('');
+    }
+
+    function loadManagers() {
+      const managers = getUsers().filter(u => u.role === 'manager').map(u => u.username);
+      const select = document.getElementById('clientManager');
+      select.innerHTML = '<option value="">Выберите менеджера</option>';
+      managers.forEach(m => {
+        const opt = document.createElement('option');
+        opt.value = m;
+        opt.textContent = m;
+        select.appendChild(opt);
+      });
+      // Если у клиента уже есть менеджер — выберем его
+      if (document.getElementById('clientManager').value === '') {
+        document.getElementById('clientManager').value = currentUser;
+      }
+    }
+  </script>
+</body>
+</html>

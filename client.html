@@ -1,44 +1,50 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Карточка клиента</title>
+  <title>Clients — Coldi CRM</title>
   <link rel="stylesheet" href="css/style.css" />
-  <link rel="icon" href="img/logo.svg" type="image/svg+xml" />
 </head>
 <body>
-  <div class="page-wrapper">
+  <div class="dashboard">
     <aside class="sidebar">
-      <div class="logo">
-        <img src="img/logo.svg" alt="Logo"> Coldi CRM
+      <div class="sidebar-header">
+        <h2>Coldi CRM</h2>
+        <p id="userRole"></p>
       </div>
-      <nav>
-        <a href="home.html">Главная</a>
-        <a href="leads.html">Лиды</a>
-        <a href="notifications.html">Напоминания</a>
-        <a href="admin.html" id="adminLink">Админ</a>
-        <a href="#" onclick="logout()" class="logout-link">Выход</a>
-      </nav>
+      <ul class="nav-links">
+        <li><a href="home.html">Dashboard</a></li>
+        <li><a href="leads.html">Leads</a></li>
+        <li><a href="client.html" class="active">Clients</a></li>
+        <li id="adminLink" style="display:none;"><a href="admin.html">Admin Panel</a></li>
+      </ul>
     </aside>
 
     <main class="main-content">
-      <h2>Карточка клиента</h2>
-      <div id="clientCard">
-        <p class="empty-state">Загрузка клиента...</p>
+      <div class="header">
+        <h1>Clients</h1>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Client</th>
+              <th>Company</th>
+              <th>Deal Value</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Emma Wilson</td><td>TechNova</td><td>$12,500</td><td><span class="status closed">Active</span></td></tr>
+            <tr><td>David Kim</td><td>GreenSolutions</td><td>$8,200</td><td><span class="status closed">Active</span></td></tr>
+          </tbody>
+        </table>
       </div>
     </main>
   </div>
-
-  <!-- Иконка уведомлений -->
-  <div id="notificationIcon" class="notification-icon">
-    <img src="img/bell.svg" alt="🔔" />
-    <div id="notificationBadge" class="notification-badge" style="display: none;">0</div>
-  </div>
-  <div id="notificationPopup" class="notification-popup" style="display: none;"></div>
-
-  <!-- Скрипты -->
-  <script src="js/reminder.js"></script>
-  <script src="js/client.js"></script>
+  <script src="js/main.js"></script>
 </body>
 </html>
